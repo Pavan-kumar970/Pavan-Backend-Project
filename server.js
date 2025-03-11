@@ -7,7 +7,11 @@ const adminRoutes = require("./routes/adminRoutes"); // ✅ Import Admin Routes
 const productRoutes = require('./routes/productRoutes'); 
 const app = express();
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+    origin: "https://pavan-frontend-project.vercel.app", // Allow frontend URL
+    methods: "GET,POST,PUT,DELETE",
+    credentials: true
+}));
 
 connectDB();
 
