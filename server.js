@@ -8,7 +8,7 @@ const productRoutes = require('./routes/productRoutes');
 const app = express();
 app.use(express.json());
 app.use(cors({
-    origin: "https://pavan-frontend-project.vercel.app", // Allow frontend URL
+    origin: ["http://localhost:4200","https://pavan-frontend-project.vercel.app"], // Allow frontend URL
     methods: "GET,POST,PUT,DELETE",
     credentials: true
 }));

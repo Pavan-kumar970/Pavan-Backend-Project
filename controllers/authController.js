@@ -4,7 +4,8 @@ const twilio = require("twilio");
 require("dotenv").config();
 
 // ✅ Twilio Config
-const client = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+const client = new twilio.Twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+
 const twilioPhone = process.env.TWILIO_PHONE_NUMBER;
 
 // ✅ Generate a 6-digit OTP
@@ -13,19 +14,21 @@ const generateOTP = () => Math.floor(100000 + Math.random() * 900000).toString()
 // ✅ Send OTP via Twilio
 const sendOTP = async (number, otp) => {
     try {
-        await client.messages.create({
+        console.log(`📤 Sending OTP ${otp} to ${number}...`);
+        const message = await client.messages.create({
             body: `Your OTP for registration is: ${otp}`,
             from: twilioPhone,
             to: number
         });
-        console.log(`✅ OTP sent to ${number}`);
+        console.log(`✅ OTP sent to ${number}, SID: ${message.sid}`);
     } catch (err) {
-        console.error("❌ Failed to send OTP:", err.message);
-        throw new Error("Failed to send OTP");
+        console.error("❌ Twilio Error:", err.message);
+        throw new Error(`Failed to send OTP: ${err.message}`);
     }
-};
+};  
 
-// ✅ Register User (Requires OTP Verification Once)
+
+// ✅ Register User (With OTP Verification)
 const register = async (req, res) => {
     try {
         const { name, email, password, number } = req.body;
@@ -66,8 +69,9 @@ const register = async (req, res) => {
         await user.save();
         await sendOTP(number, otp);
 
-        res.status(200).json({ message: "OTP sent. Please verify." });
+        res.status(200).json({ message: "OTP sent successfully. Please verify." });
     } catch (err) {
+        console.error("❌ Registration Error:", err.message);
         res.status(500).json({ message: err.message });
     }
 };
